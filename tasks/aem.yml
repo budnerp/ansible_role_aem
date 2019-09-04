@@ -1,0 +1,49 @@
+---
+  - name: AEM - add {{aem_server_name}} do /etc/hosts
+    shell: 'grep -e "{{aem_server_name}}" /etc/hosts | wc -l'
+    register: check_hosts
+
+  - lineinfile:
+      dest: /etc/hosts
+      line: '{{ansible_eth1.ipv4.address}} {{aem_server_name}}'
+      owner: root
+      group: root
+    when: check_hosts.stdout == '0'
+
+  - name: AEM - check if AEM author instance exists
+    stat:
+      path: '{{aem_author_docroot}}/crx-quickstart/bin/start'
+    register: aem_start_result
+
+  - name: AEM - create project and install
+    block:
+      - name: AEM - create folder structure
+        file:
+          path: '{{item}}'
+          state: 'directory'
+          owner: '{{aem_owner}}'
+          group: '{{aem_owner_group}}'
+          mode: 0777
+        with_items:
+          - '{{aem_author_docroot}}'
+          - '{{aem_publish_docroot}}'
+
+      - name: AEM - copy AEM archive and licence for author and publish modes
+        template:
+          src: '{{item.src}}'
+          dest: '{{item.dest}}'
+          owner: '{{aem_owner}}'
+          group: '{{aem_owner_group}}'
+          mode: 0777
+        with_items:
+          - { src: '{{aem_author_jar_source_filename}}', dest: '{{aem_author_docroot}}/{{aem_author_jar_destination_filename}}' }
+          - { src: '{{aem_publish_jar_source_filename}}', dest: '{{aem_publish_docroot}}/{{aem_publish_jar_destination_filename}}' }
+          - { src: '{{aem_author_license_source_filename}}', dest: '{{aem_author_docroot}}/{{aem_author_license_destination_filename}}' }
+          - { src: '{{aem_publish_main_license_source_filename}}', dest: '{{aem_publish_docroot}}/{{aem_publish_main_license_destination_filename}}' }
+
+      - name: AEM - unpack author instance
+        command: 'java -jar {{aem_author_docroot}}/{{aem_author_jar_destination_filename}} -unpack -b {{aem_author_docroot}}'
+        become: yes
+        become_user: '{{aem_owner}}'
+
+    when: aem_start_result.stat.exists == false

@@ -1,0 +1,22 @@
+---
+# Hostname under AEM will be
+#aem_server_name: '{{ansible_nodename}}'
+aem_server_name: 'aem.local'
+
+# AEM docroot
+aem_author_docroot: '/opt/aem/author'
+aem_publish_docroot: '/opt/aem/publish'
+
+# for CentOS 7 and Apache, it most likely will be apache:apache
+aem_owner: 'apache'
+aem_owner_group: 'apache'
+
+aem_author_jar_source_filename: 'AEM_6.5_Quickstart.jar'
+aem_author_jar_destination_filename: 'aem-author-p4502.jar'
+aem_publish_main_jar_source_filename: 'AEM_6.5_Quickstart.jar'
+aem_publish_main_jar_destination_filename: 'aem-publish-p4503.jar'
+
+aem_author_license_source_filename: 'license.properties'
+aem_author_license_destination_filename: 'license.properties'
+aem_publish_main_license_source_filename: 'license.properties'
+aem_publish_main_license_destination_filename: 'license.properties'
