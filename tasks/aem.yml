@@ -1,4 +1,18 @@
 ---
+  - name: AEM - create {{aem_owner}}
+    user:
+      name: '{{aem_owner}}'
+      comment: '{{aem_owner}} service owner'
+      shell: '/sbin/nologin'
+
+  - name: AEM - create /var/log/aem_author.log
+    file:
+      path: /var/log/aem_author.log
+      owner: '{{aem_owner}}'
+      group: '{{aem_owner_group}}'
+      mode: '0644'
+      state: touch
+
   - name: AEM - add {{aem_server_name}} do /etc/hosts
     shell: 'grep -e "{{aem_server_name}}" /etc/hosts | wc -l'
     register: check_hosts
@@ -46,4 +60,34 @@
         become: yes
         become_user: '{{aem_owner}}'
 
+      - name: AEM - install aem_author startup service script
+        template:
+          src: etc/systemd/system/aem_author.service.j2
+          dest: /etc/systemd/system/aem_author.service
+          owner: root
+          group: root
+          mode: 0644
+
+      - name: AEM - start AEM author service
+        service: name=aem_author state=started
+
     when: aem_start_result.stat.exists == false
+
+  - name: AEM - install aem_author startup service script
+    template:
+      src: etc/systemd/system/aem_author.service.j2
+      dest: /etc/systemd/system/aem_author.service
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: AEM - install AEM author aem startup service script
+    template:
+      src: usr/bin/aem_author.j2
+      dest: /usr/bin/aem_author
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: AEM - start AEM author service
+    service: name=aem_author state=started

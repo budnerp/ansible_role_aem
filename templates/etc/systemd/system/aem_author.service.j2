@@ -1,0 +1,15 @@
+[Unit]
+Description=AEM Author Service
+After=syslog.target network.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/aem start >> /var/log/aem_author.log 2>&1
+ExecStop=/usr/bin/aem stop
+ExecReload=/usr/bin/aem restart
+KillMode=process
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target
