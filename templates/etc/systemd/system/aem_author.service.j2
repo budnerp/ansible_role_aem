@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+User=aem
 ExecStart={{ aem_author_docroot }}/crx-quickstart/bin/start
 ExecStop={{ aem_author_docroot }}/crx-quickstart/bin/stop
 ExecReload={{ aem_author_docroot }}/crx-quickstart/bin/restart

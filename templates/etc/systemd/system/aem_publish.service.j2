@@ -1,0 +1,14 @@
+[Unit]
+Description=AEM Publish Service
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=aem
+ExecStart={{ aem_publish_docroot }}/crx-quickstart/bin/start
+ExecStop={{ aem_publish_docroot }}/crx-quickstart/bin/stop
+ExecReload={{ aem_publish_docroot }}/crx-quickstart/bin/restart
+
+[Install]
+WantedBy=multi-user.target
