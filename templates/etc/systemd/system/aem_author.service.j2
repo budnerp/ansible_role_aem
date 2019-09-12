@@ -1,15 +1,13 @@
 [Unit]
 Description=AEM Author Service
-After=syslog.target network.target
+After=network.target
 
 [Service]
-Type=notify
-ExecStart=/usr/bin/aem start >> /var/log/aem_author.log 2>&1
-ExecStop=/usr/bin/aem stop
-ExecReload=/usr/bin/aem restart
-KillMode=process
-Restart=on-failure
-RestartSec=42s
+Type=oneshot
+RemainAfterExit=yes
+ExecStart={{ aem_author_docroot }}/crx-quickstart/bin/start
+ExecStop={{ aem_author_docroot }}/crx-quickstart/bin/stop
+ExecReload={{ aem_author_docroot }}/crx-quickstart/bin/restart
 
 [Install]
 WantedBy=multi-user.target

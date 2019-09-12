@@ -81,13 +81,10 @@
       group: root
       mode: 0644
 
-  - name: AEM - install AEM author aem startup service script
-    template:
-      src: usr/bin/aem_author.j2
-      dest: /usr/bin/aem_author
-      owner: root
-      group: root
-      mode: 0644
-
-  - name: AEM - start AEM author service
-    service: name=aem_author state=started
+  - name: AEM - enable and start AEM author service
+    systemd:
+      name: aem_author
+      daemon_reload: yes
+      enabled: yes
+      state: started
+      force: yes
