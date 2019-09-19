@@ -20,3 +20,5 @@ aem_author_license_source_filename: '/home/vagrant/license.properties'
 aem_author_license_destination_filename: 'license.properties'
 aem_publish_license_source_filename: '/home/vagrant/license.properties'
 aem_publish_license_destination_filename: 'license.properties'
+
+aem_author_limit_nofile: 20000
