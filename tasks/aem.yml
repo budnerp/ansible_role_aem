@@ -1,28 +1,36 @@
 ---
   - name: AEM - create {{aem_owner}}
-    user:
-      name: '{{aem_owner}}'
-      comment: '{{aem_owner}} service owner'
-      shell: '/sbin/nologin'
+    group:
+      name: '{{aem_owner_group}}'
+      state: present
 
-  - name: AEM - create /var/log/aem_author.log
-    file:
-      path: /var/log/aem_author.log
-      owner: '{{aem_owner}}'
+  - name: AEM - create {{aem_owner}}
+    user:
+      comment: '{{aem_owner}} service owner'
+      name: '{{aem_owner}}'
+      append: yes
       group: '{{aem_owner_group}}'
-      mode: '0644'
-      state: touch
+      system: yes
+      state: present
+
+#  - name: AEM - create /var/log/aem_author.log
+#    file:
+#      path: /var/log/aem_author.log
+#      owner: '{{aem_owner}}'
+#      group: '{{aem_owner_group}}'
+#      mode: '0644'
+#      state: touch
 
   - name: AEM - add {{aem_server_name}} do /etc/hosts
     shell: 'grep -e "{{aem_server_name}}" /etc/hosts | wc -l'
     register: check_hosts
 
-  - lineinfile:
-      dest: /etc/hosts
-      line: '{{ansible_eth1.ipv4.address}} {{aem_server_name}}'
-      owner: root
-      group: root
-    when: check_hosts.stdout == '0'
+#  - lineinfile:
+#      dest: /etc/hosts
+#      line: '{{ansible_eth1.ipv4.address}} {{aem_server_name}}'
+#      owner: root
+#      group: root
+#    when: check_hosts.stdout == '0'
 
   - name: AEM - check if AEM author instance exists
     stat:
@@ -40,7 +48,7 @@
           mode: 0777
         with_items:
           - '{{aem_author_docroot}}'
-          - '{{aem_publish_docroot}}'
+#          - '{{aem_publish_docroot}}'
 
       - name: AEM - copy AEM archive and licence for author and publish modes
         copy:
@@ -60,29 +68,35 @@
         become: yes
         become_user: '{{aem_owner}}'
 
+#      - name: AEM - install aem_author and aem_publish services
+#        template:
+#          src: '{{item.src}}'
+#          dest: '{{item.dest}}'
+#          owner: root
+#          group: root
+#          mode: 0664
+#        with_items:
+#          - { src: 'etc/systemd/system/aem_author.service.j2', dest: '/etc/systemd/system/aem_author.service' }
+#          - { src: 'etc/systemd/system/aem_publish.service.j2', dest: '/etc/systemd/system/aem_publish.service' }
+#
+#      - name: AEM - unpack author instance
+#        shell: '{{item}}'
+#        with_items:
+#          - 'systemctl daemon-reload'
+#          - 'systemctl enable aem_author'
+#          - 'systemctl start aem_author'
+
       - name: AEM - unpack publish instance
         shell: 'java -jar {{aem_publish_docroot}}/{{aem_publish_jar_destination_filename}} -unpack -b {{aem_publish_docroot}}'
         become: yes
         become_user: '{{aem_owner}}'
 
-      - name: AEM - unpack publish instance
-        shell: 'java -jar {{aem_publish_docroot}}/{{aem_publish_jar_destination_filename}} -r publish'
-        become: yes
-        become_user: '{{aem_owner}}'
-
+#      - name: AEM - unpack publish instance
+#        shell: 'java -jar {{aem_publish_docroot}}/{{aem_publish_jar_destination_filename}} -r publish'
+#        become: yes
+#        become_user: '{{aem_owner}}'
 
     when: aem_start_result.stat.exists == false
-
-  - name: AEM - install aem_author and aem_publish services
-    template:
-      src: '{{item.src}}'
-      dest: '{{item.dest}}'
-      owner: root
-      group: root
-      mode: 0644
-    with_items:
-      - { src: 'etc/systemd/system/aem_author.service.j2', dest: '/etc/systemd/system/aem_author.service' }
-      - { src: 'etc/systemd/system/aem_publish.service.j2', dest: '/etc/systemd/system/aem_publish.service' }
 
   - name: AEM - configure publish instance
     replace:
@@ -93,19 +107,18 @@
       - { path: '{{aem_publish_docroot}}/crx-quickstart/bin/start', regexp: 'CQ_PORT=4502', replace: 'CQ_PORT=4503' }
       - { path: '{{aem_publish_docroot}}/crx-quickstart/bin/start', regexp: "CQ_RUNMODE='author'", replace: "CQ_RUNMODE='publish'" }
 
+#  - name: AEM - enable and start AEM author service
+#    systemd:
+#      name: aem_author
+#      daemon_reload: yes
+#      enabled: yes
+#      state: started
+#      force: yes
 
-  - name: AEM - enable and start AEM author service
-    systemd:
-      name: aem_author
-      daemon_reload: yes
-      enabled: yes
-      state: started
-      force: yes
-
-  - name: AEM - enable and start AEM publish service
-    systemd:
-      name: aem_publish
-      daemon_reload: yes
-      enabled: yes
-      state: started
-      force: yes
+#  - name: AEM - enable and start AEM publish service
+#    systemd:
+#      name: aem_publish
+#      daemon_reload: yes
+#      enabled: yes
+#      state: started
+#      force: yes
