@@ -1,14 +1,18 @@
 [Unit]
 Description=AEM Author Service
-After=network.target
+After=multi-user.target
+Requires=network.target
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-User=aem
+Type=forking
+
+User={{ aem_owner }}
+Group={{ aem_owner_group }}
+PIDFile={{ aem_author_docroot }}/crx-quickstart/conf/aem.pid
+LimitNOFILE={{ aem_author_limit_nofile }}
 ExecStart={{ aem_author_docroot }}/crx-quickstart/bin/start
 ExecStop={{ aem_author_docroot }}/crx-quickstart/bin/stop
-ExecReload={{ aem_author_docroot }}/crx-quickstart/bin/restart
+;ExecReload={{ aem_author_docroot }}/crx-quickstart/bin/restart
 
 [Install]
 WantedBy=multi-user.target
