@@ -16,12 +16,23 @@ Ansible role for Adobe Experience Manager installation for CentOS 7
         - ansible_role_aem
     [...]
     ```
-4. Upload `AEM_6.5_Quickstart.jar` and `license.properties` into `/home/vagrant/`
 5. Provision your machine
     ```
     vagrant reload --provision
     ```
-
+6. Log into the VM
+    ```
+    vagrant ssh
+    ```
+7. To start AEM author instance execute:
+    ```
+    sudo /opt/aem/author/crx-quickstart/bin/start
+    ```
+    To start AEM publish instance:
+    ```
+    sudo /opt/aem/publish/crx-quickstart/bin/start
+    ```
+   
 ## Other links
 
 ## TO DO

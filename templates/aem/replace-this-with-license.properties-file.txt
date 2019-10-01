@@ -1,0 +1,1 @@
+Replace this file with valid license.properties file before a VM is provisioned.

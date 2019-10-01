@@ -25,12 +25,12 @@
     shell: 'grep -e "{{aem_server_name}}" /etc/hosts | wc -l'
     register: check_hosts
 
-#  - lineinfile:
-#      dest: /etc/hosts
-#      line: '{{ansible_eth1.ipv4.address}} {{aem_server_name}}'
-#      owner: root
-#      group: root
-#    when: check_hosts.stdout == '0'
+  - lineinfile:
+      dest: /etc/hosts
+      line: '{{ansible_eth1.ipv4.address}} {{aem_server_name}}'
+      owner: root
+      group: root
+    when: check_hosts.stdout == '0'
 
   - name: AEM - check if AEM author instance exists
     stat:
@@ -58,26 +58,25 @@
           group: '{{aem_owner_group}}'
           mode: 0777
         with_items:
-          - { src: '{{aem_author_jar_source_filename}}', dest: '{{aem_author_docroot}}/{{aem_author_jar_destination_filename}}' }
-          - { src: '{{aem_publish_jar_source_filename}}', dest: '{{aem_publish_docroot}}/{{aem_publish_jar_destination_filename}}' }
-          - { src: '{{aem_author_license_source_filename}}', dest: '{{aem_author_docroot}}/{{aem_author_license_destination_filename}}' }
-          - { src: '{{aem_publish_license_source_filename}}', dest: '{{aem_publish_docroot}}/{{aem_publish_license_destination_filename}}' }
+          - { src: '{{aem_author_jar_source_filename}}', dest: '{{aem_author_jar_destination_filename}}' }
+          - { src: '{{aem_publish_jar_source_filename}}', dest: '{{aem_publish_jar_destination_filename}}' }
+          - { src: '{{aem_author_license_source_filename}}', dest: '{{aem_author_license_destination_filename}}' }
+          - { src: '{{aem_publish_license_source_filename}}', dest: '{{aem_publish_license_destination_filename}}' }
 
       - name: AEM - unpack author instance
-        shell: 'java -jar {{aem_author_docroot}}/{{aem_author_jar_destination_filename}} -unpack -b {{aem_author_docroot}}'
+        shell: 'java -jar {{aem_author_jar_destination_filename}} -unpack -b {{aem_author_docroot}}'
         become: yes
         become_user: '{{aem_owner}}'
 
       - name: AEM - unpack publish instance
-        shell: 'java -jar {{aem_publish_docroot}}/{{aem_publish_jar_destination_filename}} -unpack -b {{aem_publish_docroot}}'
+        shell: 'java -jar {{aem_publish_jar_destination_filename}} -unpack -b {{aem_publish_docroot}}'
         become: yes
         become_user: '{{aem_owner}}'
 
-      - name: AEM - unpack publish instance
-        shell: 'java -jar {{aem_publish_docroot}}/{{aem_publish_jar_destination_filename}} -r publish'
-        become: yes
-        become_user: '{{aem_owner}}'
-
+#      - name: AEM - unpack publish instance
+#        shell: 'java -jar {{aem_publish_docroot}}/{{aem_publish_jar_destination_filename}} -r publish'
+#        become: yes
+#        become_user: '{{aem_owner}}'
 
     when: aem_start_result.stat.exists == false
 
@@ -100,27 +99,3 @@
     with_items:
       - { path: '{{aem_publish_docroot}}/crx-quickstart/bin/start', regexp: 'CQ_PORT=4502', replace: 'CQ_PORT=4503' }
       - { path: '{{aem_publish_docroot}}/crx-quickstart/bin/start', regexp: "CQ_RUNMODE='author'", replace: "CQ_RUNMODE='publish'" }
-
-#  - name: AEM - enable and start AEM author service
-#    systemd:
-#      name: aem_author
-#      daemon_reload: yes
-#      enabled: yes
-#      state: started
-#      force: yes
-
-#  - name: AEM - enable and start AEM publish service
-#    systemd:
-#      name: aem_publish
-#      daemon_reload: yes
-#      enabled: yes
-#      state: started
-#      force: yes
-
-#  - name: AEM - enable and start AEM publish service
-#    systemd:
-#      name: aem_publish
-#      daemon_reload: yes
-#      enabled: yes
-#      state: started
-#      force: yes
